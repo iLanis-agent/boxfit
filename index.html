@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BoxFit - you're paying to ship air</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#17120d; color:#f2ede3; min-height:100vh; }
+  .wrap { max-width:720px; margin:0 auto; padding:64px 24px; }
+  .tag { color:#e0913d; font-weight:600; letter-spacing:2px; text-transform:uppercase; font-size:12px; }
+  h1 { font-size:clamp(34px,6vw,52px); line-height:1.1; margin:14px 0 18px; }
+  h1 span { color:#e0913d; }
+  p.lead { font-size:18px; color:#b6ac9c; max-width:560px; line-height:1.6; }
+  .cta { display:inline-block; margin-top:32px; background:#e0913d; color:#2a1a08; font-weight:700; padding:14px 32px; border-radius:10px; text-decoration:none; font-size:16px; }
+  .cta:hover { filter:brightness(1.1); }
+  .feats { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:16px; margin-top:56px; }
+  .feat { background:#211a12; border:1px solid #4d3a24; border-radius:12px; padding:20px; }
+  .feat b { display:block; margin-bottom:6px; color:#fff; }
+  .feat p { color:#9c917f; font-size:14px; line-height:1.5; }
+  .foot { margin-top:56px; color:#6f675a; font-size:13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="tag">BoxFit</div>
+  <h1>Your box weighs 3 pounds. <span>UPS bills it as 56.</span> That's the dim-weight tax.</h1>
+  <p class="lead">Carriers charge for whichever is bigger: the scale weight or the space your box eats in the truck. BoxFit runs the real math on your dimensions - dimensional weight per carrier, flat-rate boxes your item actually rotates into, every option priced side by side - and names the cheapest honest way to ship it.</p>
+  <a class="cta" href="app.html">Price my box</a>
+  <div class="feats">
+    <div class="feat"><b>The dim-weight trap</b><p>Big and light is the expensive combo. See exactly when the carrier swaps your 3 lb scale weight for a 56 lb billing weight - and which carrier's divisor is kindest.</p></div>
+    <div class="feat"><b>Flat-rate fit test</b><p>Flat-rate boxes only win if your item fits. Real rotation math, not just length checks: if it fits in any orientation, BoxFit finds it.</p></div>
+    <div class="feat"><b>The spread</b><p>Same box, three carriers, prices that can differ by 2x. The cheapest and the priciest, and what the gap costs you per shipment.</p></div>
+  </div>
+  <div class="foot">BoxFit - a tiny tool from the App Factory.</div>
+</div>
+</body>
+</html>
