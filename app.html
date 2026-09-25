@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BoxFit - the cheapest honest way to ship it</title>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; background:#17120d; color:#f2ede3; min-height:100vh; }
+  .wrap { max-width:860px; margin:0 auto; padding:28px 20px 80px; }
+  header { display:flex; justify-content:space-between; align-items:center; margin-bottom:22px; }
+  header h1 { font-size:22px; } header h1 span { color:#e0913d; }
+  header a { color:#9c917f; text-decoration:none; font-size:14px; }
+  .card { background:#211a12; border:1px solid #4d3a24; border-radius:12px; padding:18px; margin-bottom:18px; }
+  label { font-size:12px; color:#9c917f; display:block; margin-bottom:4px; }
+  input { background:#17120d; border:1px solid #5c462b; border-radius:8px; color:#f2ede3; padding:9px 10px; font-size:14px; width:100%; }
+  button { background:#e0913d; border:none; color:#2a1a08; font-weight:700; padding:11px 22px; border-radius:9px; font-size:14px; cursor:pointer; }
+  .row4 { display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:12px; margin-bottom:12px; }
+  h3 { font-size:14px; color:#cbbfa9; margin-bottom:10px; }
+  .verdict { background:#261c10; border:1px solid #5c4426; border-radius:10px; padding:14px 16px; margin-bottom:14px; font-size:15px; line-height:1.6; }
+  .verdict b { color:#e0913d; }
+  .stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; }
+  .stat { background:#17120d; border:1px solid #4d3a24; border-radius:10px; padding:12px; }
+  .stat .v { font-size:20px; font-weight:700; color:#fff; }
+  .stat .k { font-size:11px; color:#9c917f; margin-top:2px; line-height:1.4; }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  th, td { text-align:right; padding:6px 8px; border-bottom:1px solid #3a2c1a; }
+  th { color:#9c917f; font-weight:600; }
+  td:first-child, th:first-child { text-align:left; }
+  tr.best td { color:#e0913d; font-weight:600; }
+  .err { color:#ff8a8a; font-size:13px; margin-top:8px; }
+  .note { color:#6f675a; font-size:12px; margin-top:10px; }
+  @media (max-width:640px){ .row4 { grid-template-columns:1fr 1fr; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><h1>Box<span>Fit</span></h1><a href="index.html">home</a></header>
+
+  <div class="card">
+    <h3>Your package</h3>
+    <div class="row4">
+      <div><label>Longest side (in)</label><input id="l" type="number" step="0.25" value="18"></div>
+      <div><label>Middle side (in)</label><input id="w" type="number" step="0.25" value="14"></div>
+      <div><label>Shortest side (in)</label><input id="h" type="number" step="0.25" value="10"></div>
+      <div><label>Scale weight (lbs)</label><input id="wt" type="number" step="0.5" value="6"></div>
+    </div>
+    <button id="go">Price every option</button>
+    <div class="err" id="err"></div>
+    <div class="note">Ballpark retail rate cards (mid-zone, single piece). The math - dimensional weight, rotation fit, the comparison - is the point; check your carrier's exact quote before shipping.</div>
+  </div>
+
+  <div id="out" style="display:none">
+    <div class="verdict" id="verdict"></div>
+    <div class="card">
+      <div class="stats" id="stats"></div>
+    </div>
+    <div class="card">
+      <h3>Weight-based services</h3>
+      <table id="tbl">
+        <thead><tr><th>Service</th><th>Scale lbs</th><th>Dim lbs</th><th>Billed lbs</th><th>Price</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="note">USPS only applies dimensional weight over 1,728 cu in; UPS and FedEx apply it to every box. Gold row = cheapest.</div>
+    </div>
+    <div class="card">
+      <h3>USPS flat-rate boxes</h3>
+      <table id="flat">
+        <thead><tr><th>Box</th><th>Fits your item</th><th>Price</th></tr></thead>
+        <tbody></tbody>
+      </table>
+      <div class="note">Fit test rotates your item through all orientations, not just the one you pictured.</div>
+    </div>
+  </div>
+    <div class="card">
+      <h3>How the dim-weight tax works</h3>
+      <div class="note" style="font-size:13px;line-height:1.7">
+        Carriers price space, not just mass. Multiply your box sides for cubic inches, divide by the carrier's
+        divisor (UPS and FedEx: 139, every box; USPS: 166, only above 1,728 cu in), round up - that is your
+        dimensional weight. You pay for whichever is higher: scale or dimensional. A 24x18x18 pillow box is
+        56 "pounds" to UPS no matter what the scale says. The fixes: shrink the box, crush the void fill,
+        split into two smaller boxes, or ride a flat-rate box where weight stops mattering entirely.
+      </div>
+    </div>
+  </div>
+<script src="engine.js"></script>
+<script>
+(function(){
+  var F = ['l','w','h','wt'];
+  var KEY = 'boxfit-settings';
+  function save(){ var o={}; F.forEach(function(f){o[f]=document.getElementById(f).value;}); try{localStorage.setItem(KEY,JSON.stringify(o));}catch(e){} }
+  function load(){ try{ var o=JSON.parse(localStorage.getItem(KEY)||'null'); if(o) F.forEach(function(f){ if(o[f]!==undefined) document.getElementById(f).value=o[f]; }); }catch(e){} }
+  function fmt$(n){ return '$' + Number(n).toLocaleString('en-US',{minimumFractionDigits:2, maximumFractionDigits:2}); }
+  function run(){
+    var errEl = document.getElementById('err'); errEl.textContent = '';
+    var o = {
+      length: document.getElementById('l').value,
+      width: document.getElementById('w').value,
+      height: document.getElementById('h').value,
+      weight: document.getElementById('wt').value
+    };
+    var r;
+    try { r = BoxFitEngine.analyze(o); } catch(e){ errEl.textContent = e.message; return; }
+    save();
+    var v = document.getElementById('verdict');
+    if (!r.best) {
+      v.innerHTML = 'Nothing here can take it: too heavy for every service card. Freight territory.';
+    } else {
+      var msg = 'Cheapest way to ship it: <b>' + r.best.name + ' at ' + fmt$(r.best.price) + '</b>.';
+      if (r.spread > 0) msg += ' The priciest option runs ' + fmt$(r.worst.price) + ' - a ' + fmt$(r.spread) + ' gap for the same box.';
+      if (r.dimTrap) msg += ' Careful: your box is mostly air, and at least one carrier bills it at double the scale weight or more.';
+      v.innerHTML = msg;
+    }
+    var s = document.getElementById('stats');
+    s.innerHTML = '';
+    var dimWorst = 0;
+    r.perService.forEach(function(x){ if (x.dimLbs > dimWorst) dimWorst = x.dimLbs; });
+    var cells = [
+      [r.cuIn.toLocaleString() + ' cu in', 'box volume'],
+      [r.actualLbs + ' lbs', 'billable scale weight'],
+      [dimWorst + ' lbs', 'worst dimensional weight'],
+      [r.best ? r.best.name + ' - ' + fmt$(r.best.price) : 'none', 'cheapest option'],
+      [fmt$(r.spread), 'gap between cheapest and priciest'],
+      [r.candidatesCount, 'options that can take it']
+    ];
+    cells.forEach(function(c){
+      var d = document.createElement('div'); d.className = 'stat';
+      d.innerHTML = '<div class="v">' + c[0] + '</div><div class="k">' + c[1] + '</div>';
+      s.appendChild(d);
+    });
+    var tb = document.querySelector('#tbl tbody'); tb.innerHTML = '';
+    var minPrice = r.best ? r.best.price : null;
+    r.perService.forEach(function(x){
+      var tr = document.createElement('tr');
+      if (minPrice !== null && x.price === minPrice) tr.className = 'best';
+      tr.innerHTML = '<td>' + x.name + '</td><td>' + x.actualLbs + '</td><td>' + (x.dimLbs || '-') + '</td><td>' + x.billableLbs + '</td><td>' + (x.price === null ? 'over limit' : fmt$(x.price)) + '</td>';
+      tb.appendChild(tr);
+    });
+    var fb = document.querySelector('#flat tbody'); fb.innerHTML = '';
+    r.flatOptions.forEach(function(b){
+      var tr = document.createElement('tr');
+      if (minPrice !== null && b.fits && b.price === minPrice) tr.className = 'best';
+      tr.innerHTML = '<td>' + b.name + '</td><td>' + (b.fits ? 'fits' : 'no') + '</td><td>' + (b.fits ? fmt$(b.price) : '-') + '</td>';
+      fb.appendChild(tr);
+    });
+    document.getElementById('out').style.display = 'block';
+  }
+  document.getElementById('go').addEventListener('click', run);
+  load();
+})();
+</script>
+</body>
+</html>
